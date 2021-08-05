@@ -10,6 +10,7 @@ function handleSubmit(event) {
   newListItem.innerHTML = inputText;
   listSection.appendChild(newListItem);
   inputBox.value = '';
+  // master branch
 }
 
 submitButton.addEventListener('click', handleSubmit);
