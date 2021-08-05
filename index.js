@@ -1,60 +1,61 @@
 const inputBox = document.getElementById('inputbox');
 const submitButton = document.getElementById('submit');
 const listSection = document.getElementById('listsection');
-let idAssigner = 0;
+let isEditing = false;
+let key = 0;
+let currentItemKey; // a common number shared by all elements uniquely within each list item
 
 function handleSubmit(event) {
-  idAssigner += 1;
+  key += 1;
   event.preventDefault(event);
-  const inputText = inputBox.value;
   const newListItem = document.createElement('p');
   newListItem.classList.add('listItem'); // <p class='listItem'>*innerHTML*<button /></p>
-  newListItem.setAttribute('id', `listItem${idAssigner}`);
-  newListItem.innerHTML = `${inputText} 
-  <button id='deleteBtn${idAssigner}'>delete</button>
-  <button id='editBtn${idAssigner}'>edit</button>`;
+  newListItem.setAttribute('id', `listItem${key}`);
+  newListItem.innerHTML = `${inputBox.value} 
+  <button id='deleteBtn${key}'>delete</button>
+  <button id='editBtn${key}'>edit</button>`;
   listSection.appendChild(newListItem);
-  const deleteButton = document.getElementById(`deleteBtn${idAssigner}`);
-  const editButton = document.getElementById(`editBtn${idAssigner}`);
+  const deleteButton = document.getElementById(`deleteBtn${key}`);
+  const editButton = document.getElementById(`editBtn${key}`);
   editButton.addEventListener('click', handleEdit);
   deleteButton.addEventListener('click', handleDelete);
   inputBox.value = '';
-  console.log('listItem', newListItem);
-  // features branch
+  // kensolo branch
 }
 
 function handleEdit(event) {
-  console.log('handleEvent', event.target.id);
-  const key = event.target.id.slice(-1);
-  const currentListItem = document.getElementById(`listItem${key}`);
-  inputBox.value = currentListItem.textContent.slice(0, -17); // Not 100% sure why -15
+  isEditing = true;
+  currentItemKey = event.target.id.slice(-1);
+  const currentListItem = document.getElementById(`listItem${currentItemKey}`);
+  inputBox.value = currentListItem.textContent.slice(0, -17); // Not sure why -17 but it works
+  submitButton.innerHTML = 'edit'
+  submitButton.removeEventListener('click', handleSubmit);
+  submitButton.addEventListener('click', updateListItem);
+}
 
-  // populate input box with text in the list item (KEY)
-
-// when clicked, place inputText back into input box (INPUTBOX.value)
-// select the list item, and populate input box with INPUTTEXT
-// when submit, 'CORRECT' the listItem rather than add a new item
-// update event listener on the submit button
-// submit button should now 'update' current list item rather than add new (update innerHTML)
-// empty the input box after submit
-// reset behavior of submit button
+function updateListItem(event) {
+  event.preventDefault();
+  const currentListItem = document.getElementById(`listItem${currentItemKey}`);
+  currentListItem.innerHTML = `${inputBox.value} 
+  <button id='deleteBtn${currentItemKey}'>delete</button>
+  <button id='editBtn${currentItemKey}'>edit</button>`;
+  const deleteButton = document.getElementById(`deleteBtn${currentItemKey}`);
+  const editButton = document.getElementById(`editBtn${currentItemKey}`);
+  editButton.addEventListener('click', handleEdit);
+  deleteButton.addEventListener('click', handleDelete);
+  submitButton.innerHTML = 'submit';
+  submitButton.removeEventListener('click', updateListItem);
+  submitButton.addEventListener('click', handleSubmit);
+  inputBox.value = '';
+  isEditing = false;
 }
 
 function handleDelete(event) {
-  const elementToDelete = document.getElementById(`listItem${event.target.id.slice(9)}`);
-  elementToDelete.remove();
+  if (!isEditing) {
+    currentItemKey = event.target.id.slice(-1);
+    const currentListItem = document.getElementById(`listItem${currentItemKey}`);
+    currentListItem.remove();
+  }
 }
 
 submitButton.addEventListener('click', handleSubmit);
-
-// const newListItem = <p>USERINPUT <button>delete</button> <button>edit</button></p>
-
-// const obj = ['hello',
-// 'goooby',
-// 'icepoop',
-// 'goblin',
-// 'phoney',
-// 'something',
-// 'blarg',
-// 'poop',
-// 'microphone'];
