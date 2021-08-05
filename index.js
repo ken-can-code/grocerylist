@@ -9,18 +9,19 @@ function handleSubmit(event) {
   const inputText = inputBox.value;
   const newListItem = document.createElement('p');
   newListItem.classList.add('listItem'); // <p class='listItem'>*innerHTML*<button /></p>
-  newListItem.setAttribute('id', `deleteMe${idAssigner}`);
-  newListItem.innerHTML = `${inputText} <button id='${idAssigner}'>delete</button>`;
+  newListItem.setAttribute('id', `listItem${idAssigner}`);
+  newListItem.innerHTML = `${inputText} <button id='deleteBtn${idAssigner}'>delete</button>`;
   console.log('newListItem', newListItem);
   listSection.appendChild(newListItem);
-  const deleteButton = document.getElementById(`deleteMe${idAssigner}`);
+  const deleteButton = document.getElementById(`deleteBtn${idAssigner}`);
+  console.log('deleteButton', deleteButton);
   deleteButton.addEventListener('click', handleDelete);
   inputBox.value = '';
   // features branch
 }
 
 function handleDelete(event) {
-  const elementToDelete = document.getElementById(`deleteMe${event.target.id}`);
+  const elementToDelete = document.getElementById(`listItem${event.target.id.slice(9)}`);
   elementToDelete.remove();
 }
 
