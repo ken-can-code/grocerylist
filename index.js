@@ -1,18 +1,19 @@
-const inputBox = document.getElementById('inputbox');
-const submitButton = document.getElementById('submit');
+const inputBox = document.getElementById('inputBox');
+const submitButton = document.getElementById('submitButton');
 const listSection = document.getElementById('listsection');
-let isEditing = false;
-let key = 0;
+let key = 1;
 let currentItemKey; // a common number shared by all elements uniquely within each list item
+document.addEventListener('DOMContentLoaded', () => {
+  submitButton.addEventListener('click', handleSubmit);
+});
 
-function handleSubmit(event) {
-  key += 1;
+async function handleSubmit(event) {
   event.preventDefault(event);
   const newListItem = document.createElement('p');
   newListItem.classList.add('listItem'); // <p class='listItem'>*innerHTML*<button /></p>
   newListItem.setAttribute('id', `listItem${key}`);
-  newListItem.innerHTML = `${inputBox.value} 
-  <button id='deleteBtn${key}'>delete</button>
+  newListItem.innerHTML = `${inputBox.value}
+  <button id='deleteBtn${key}'>delete</button> 
   <button id='editBtn${key}'>edit</button>`;
   listSection.appendChild(newListItem);
   const deleteButton = document.getElementById(`deleteBtn${key}`);
@@ -20,15 +21,20 @@ function handleSubmit(event) {
   editButton.addEventListener('click', handleEdit);
   deleteButton.addEventListener('click', handleDelete);
   inputBox.value = '';
-  // kensolo branch
+  key += 1;
+}
+
+function handleDelete(event) {
+  if (submitButton.textContent !== 'edit') {
+    event.target.parentElement.remove();
+  }
 }
 
 function handleEdit(event) {
-  isEditing = true;
   currentItemKey = event.target.id.slice(-1);
-  const currentListItem = document.getElementById(`listItem${currentItemKey}`);
-  inputBox.value = currentListItem.textContent.slice(0, -17); // Not sure why -17 but it works
-  submitButton.innerHTML = 'edit'
+  inputBox.value = event.target.parentElement.textContent.slice(0, -17);
+  // edit + delete = 10, plus spaces and formatting
+  submitButton.textContent = 'edit'; // acts as a 'state' of the app in 'editing mode'
   submitButton.removeEventListener('click', handleSubmit);
   submitButton.addEventListener('click', updateListItem);
 }
@@ -43,19 +49,15 @@ function updateListItem(event) {
   const editButton = document.getElementById(`editBtn${currentItemKey}`);
   editButton.addEventListener('click', handleEdit);
   deleteButton.addEventListener('click', handleDelete);
-  submitButton.innerHTML = 'submit';
+  submitButton.textContent = 'submit'; // also effectively turns off 'editing mode'
   submitButton.removeEventListener('click', updateListItem);
   submitButton.addEventListener('click', handleSubmit);
   inputBox.value = '';
-  isEditing = false;
 }
 
-function handleDelete(event) {
-  if (!isEditing) {
-    currentItemKey = event.target.id.slice(-1);
-    const currentListItem = document.getElementById(`listItem${currentItemKey}`);
-    currentListItem.remove();
-  }
-}
-
-submitButton.addEventListener('click', handleSubmit);
+module.exports = {
+  submitButton,
+  listSection,
+  handleSubmit,
+  key,
+};
