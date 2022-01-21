@@ -5,14 +5,13 @@
 const puppeteer = require('puppeteer');
 const groceryList = require('../index');
 
-const { key } = groceryList;
+let { key } = groceryList;
 
 describe('test clicking buttons behaves as expected', () => {
-  it('should add item to listItems when inputBox is submitted', async () => {
-    jest.setTimeout(15000);
+  test('should add item to listItems when inputBox is submitted', async () => {
     const browser = await puppeteer.launch({
       headless: false,
-      slowMo: 8,
+      slowMo: 80,
       args: ['--window-size=1400,900'],
     });
     const page = await browser.newPage();
@@ -20,7 +19,15 @@ describe('test clicking buttons behaves as expected', () => {
     await page.click('#inputBox');
     await page.type('#inputBox', 'Apple');
     await page.click('#submitButton');
-    const listItemText = await page.$eval(`#listItem${key}`, (el) => el.textContent.slice(0, -17));
-    expect(listItemText).toBe('Apple');
-  });
+    const listItemText1 = await page.$eval(`#listItem${key}`, (el) => el.textContent.slice(0, -17));
+    expect(listItemText1).toBe('Apple');
+    key += 1;
+    await page.click('#inputBox');
+    await page.type('#inputBox', 'Banana');
+    await page.click('#submitButton');
+    const listItemText2 = await page.$eval(`#listItem${key}`, (el) => el.textContent.slice(0, -17));
+    // above line is still getting #listItem1 i.e. running too fast before key is updated...
+    expect(listItemText2).toBe('Banana');
+    await browser.close();
+  }, 15000);
 });
